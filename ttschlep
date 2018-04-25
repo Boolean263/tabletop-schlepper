@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import sys
+import argparse
+
+import ttschlepper.constants as const
+
+parser = argparse.ArgumentParser(description="Get or send Lua scripts from Tabletop Simulator")
+parser.add_argument('-s', '--server', type=str, default='localhost', help='Server hostname or IP to connect to (default:localhost)')
+parser.add_argument('-p', '--port', type=int, default=const.TTS_SERVER_PORT, help='Server port to connect to (default:{})'.format(const.TTS_SERVER_PORT))
+
+subparsers = parser.add_subparsers(dest='command', help='Action')
+subparsers.required = True
+
+p_get = subparsers.add_parser('get', help='get scripts from TTS')
+p_get.add_argument('outfile', type=argparse.FileType('w'), nargs='?', default=sys.stdout, help="File to save to (default:stdout)")
+
+p_put = subparsers.add_parser('put', help='put scripts to TTS')
+p_put.add_argument('infile', type=argparse.FileType('r'), nargs='?', default=sys.stdin, help="File to read from (default:stdin)")
+
+args = parser.parse_args()
+
+if args.command == 'get':
+    raise NotImplemented
+elif args.command == 'put':
+    raise NotImplemented
+
+# Editor modelines - http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 4
+# tab-width: 4
+# indent-tabs-mode: nil
+# coding: utf-8
+# mode: python
+# End:
+#
+# vi:set shiftwidth=4 tabstop=4 expandtab fileencoding=utf-8 filetype=python:
+# :indentSize=4:tabSize=4:noTabs=true:coding=utf-8:type=python:
