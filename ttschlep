@@ -4,6 +4,7 @@ import sys
 import argparse
 
 import ttschlepper.constants as const
+import ttschlepper.comms as comms
 
 parser = argparse.ArgumentParser(description="Get or send Lua scripts from Tabletop Simulator")
 parser.add_argument('-s', '--server', type=str, default='localhost', help='Server hostname or IP to connect to (default:localhost)')
@@ -20,8 +21,11 @@ p_put.add_argument('infile', type=argparse.FileType('r'), nargs='?', default=sys
 
 args = parser.parse_args()
 
+ttserver = (args.server, args.port)
+
 if args.command == 'get':
-    raise NotImplemented
+    # Need a better API eventually
+    comms.send_msg(ttserver, comms.GET_SCRIPTS)
 elif args.command == 'put':
     raise NotImplemented
 
