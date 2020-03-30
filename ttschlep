@@ -5,28 +5,60 @@ import argparse
 
 import ttschlepper.constants as const
 import ttschlepper.comms as comms
+import ttschlepper.translation as xlate
+
+def addr_and_port(aStr):
+    """\
+    Reads a host and optional port from the command line.
+    """
+    if ":" in aStr:
+        h, p = aStr.rsplit(":", 1)
+        p = int(p, 10)
+    else:
+        h = aStr
+        p = 0
+    return (h, p)
 
 parser = argparse.ArgumentParser(description="Get or send Lua scripts from Tabletop Simulator")
-parser.add_argument('-s', '--server', type=str, default='localhost', help='Server hostname or IP to connect to (default:localhost)')
-parser.add_argument('-p', '--port', type=int, default=const.TTS_SERVER_PORT, help='Server port to connect to (default:{})'.format(const.TTS_SERVER_PORT))
+parser.add_argument('-s', '--server',
+        metavar="HOST[:PORT]",
+        type=addr_and_port, default='localhost:'+str(const.TTS_SERVER_PORT),
+        help='Server hostname and port to connect to (default:%(default)s)')
+parser.add_argument('-l', '--listen',
+        metavar="HOST[:PORT]",
+        type=addr_and_port, default='localhost:'+str(const.TTS_CLIENT_PORT),
+        help='Client hostname and port to listen on (default:%(default)s)')
 
 subparsers = parser.add_subparsers(dest='command', help='Action')
 subparsers.required = True
 
 p_get = subparsers.add_parser('get', help='get scripts from TTS')
-p_get.add_argument('outfile', type=argparse.FileType('w'), nargs='?', default=sys.stdout, help="File to save to (default:stdout)")
+p_get.add_argument('outfile',
+        metavar="OUTFILE",
+        type=argparse.FileType('w'), nargs='?', default=sys.stdout,
+        help="File to save to (default:stdout)")
 
 p_put = subparsers.add_parser('put', help='put scripts to TTS')
-p_put.add_argument('infile', type=argparse.FileType('r'), nargs='?', default=sys.stdin, help="File to read from (default:stdin)")
+p_put.add_argument('infile',
+        metavar="INFILE",
+        type=argparse.FileType('r'), nargs='?', default=sys.stdin,
+        help="File to read from (default:stdin)")
+
+p_get = subparsers.add_parser('listen', help='listen for changes from TTS')
+p_get.add_argument('outfile',
+        metavar="OUTFILE",
+        type=argparse.FileType('w'), nargs='?', default=sys.stdout,
+        help="File to save to (default:stdout)")
 
 args = parser.parse_args()
 
-ttserver = (args.server, args.port)
-
 if args.command == 'get':
-    # Need a better API eventually
-    comms.send_msg(ttserver, comms.GET_SCRIPTS)
+    json = comms.send_msg(comms.SEND_GET_SCRIPTS, args.server, args.listen)
+    xlate.json2lua(json, args.outfile)
 elif args.command == 'put':
+    json = xlate.lua2json(args.infile)
+    comms.send_msg(comms.SEND_SAVE_PLAY, args.server, args.listen, json)
+elif args.command == 'listen':
     raise NotImplemented
 
 # Editor modelines - http://www.wireshark.org/tools/modelines.html

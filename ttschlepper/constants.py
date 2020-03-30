@@ -1,5 +1,5 @@
 TTS_SERVER_PORT=39999
-TTS_CLIENT_PORT=39998   # not currently used
+TTS_CLIENT_PORT=39998
 
 
 # Editor modelines - http://www.wireshark.org/tools/modelines.html
